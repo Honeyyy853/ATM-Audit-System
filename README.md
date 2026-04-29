@@ -70,3 +70,18 @@ Then visit `http://localhost:8000` in your web browser.
   - `login.php` / `logout.php` / `check_auth.php`: Secure session logic.
   - `connection.php`: PDO database connection file.
   - `add_atm.php`, `delete_atm.php`, `update_atm.php`, etc.: Core application endpoints.
+## 📸 Screenshots
+
+<p align="center">
+  <img src="./img/login.png" width="45%" />
+  <img src="./img/main.png" width="45%" />
+</p>
+
+<p align="center">
+  <img src="./img/add.png" width="45%" />
+  <img src="./img/added.png" width="45%" />
+</p>
+
+<p align="center">
+  <img src="./img/marktheaudited.png" width="45%" />
+</p>
