@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATM Audit System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   CSS VARIABLES — SUNLIGHT-FRIENDLY LIGHT THEME
+══════════════════════════════════════════════ */
+:root {
+  --bg:           #f0f2f7;
+  --surface:      #ffffff;
+  --surface2:     #f5f6fa;
+  --surface3:     #e8eaf2;
+  --border:       #d0d4e4;
+  --border2:      #b0b8d4;
+  --accent:       #1a56db;
+  --accent2:      #1044bb;
+  --accent-light: rgba(26,86,219,0.10);
+  --green:        #0a7a4a;
+  --green-bg:     rgba(10,122,74,0.10);
+  --red:          #c0392b;
+  --red-bg:       rgba(192,57,43,0.10);
+  --amber:        #b45309;
+  --text:         #111827;
+  --text2:        #374151;
+  --text3:        #6b7280;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --mono:         'IBM Plex Mono', monospace;
+  --sans:         'IBM Plex Sans', sans-serif;
+  --r:            10px;
+  --r-sm:         6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ════════════════════════════════════
+   FILTERS & SEARCH
+════════════════════════════════════ */
+.filters-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-sm);
+  font-family: var(--sans);
+}
+.filter-group label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+.filter-group select {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--sans);
+  cursor: pointer;
+}
+.audit-cb {
+  transform: scale(1.4);
+  cursor: pointer;
+  accent-color: var(--green);
+}
+@media (max-width: 768px) {
+  .filters-container { flex-direction: column; align-items: stretch; }
+  .filter-group { justify-content: space-between; }
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════
+   LOGIN SCREEN
+════════════════════════════════════ */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #e8edf8 0%, #f0f2f7 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 390px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 32px 36px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, #7c3aed 50%, var(--green) 100%);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.login-logo-icon {
+  width: 46px; height: 46px;
+  background: var(--accent-light);
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+
+.login-logo-name { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--text); }
+.login-logo-sub  { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.login-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 5px; color: var(--text); }
+.login-sub   { font-size: 13px; color: var(--text3); margin-bottom: 28px; line-height: 1.5; }
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 16px; /* 16px prevents iOS zoom */
+  padding: 13px 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: #fff;
+}
+.field input::placeholder { color: var(--text3); }
+
+#login-error {
+  display: none;
+  background: var(--red-bg);
+  border: 1.5px solid rgba(192,57,43,.3);
+  color: var(--red);
+  border-radius: var(--r-sm);
+  padding: 11px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.btn-primary:hover  { background: var(--accent2); box-shadow: 0 4px 12px rgba(26,86,219,0.35); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+.login-footer { margin-top: 18px; font-size: 11px; color: var(--text3); text-align: center; font-family: var(--mono); }
+
+/* ════════════════════════════════════
+   APP SHELL
+════════════════════════════════════ */
+#app-screen { display: none; flex-direction: column; min-height: 100vh; }
+
+/* Topbar */
+.topbar {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.topbar-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.topbar-title { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.topbar-badge {
+  background: var(--accent-light);
+  border: 1.5px solid var(--border2);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.btn-logout {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text2);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 7px 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color .15s, color .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-cell { flex: 1; background: var(--surface); padding: 10px 8px; text-align: center; }
+.stat-num  { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); line-height: 1; }
+.stat-label{ font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-top: 3px; font-family: var(--mono); }
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Section labels */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding-left: 2px;
+}
+
+/* Add Form Card */
+.add-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--r);
+  padding: 18px 18px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+
+.form-input {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px; /* prevents iOS zoom */
+  padding: 11px 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  -webkit-appearance: none;
+}
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: #fff;
+}
+.form-input::placeholder { color: var(--text3); font-size: 13px; }
+
+.btn-add {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px 20px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 6px rgba(26,86,219,0.20);
+}
+.btn-add:hover  { background: var(--accent2); }
+.btn-add:active { transform: scale(.98); }
+.btn-add:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Search Card */
+.search-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.search-icon { color: var(--text3); flex-shrink: 0; font-style: normal; font-size: 16px; }
+#search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px; /* prevents iOS zoom */
+  outline: none;
+  min-width: 0;
+}
+#search-input::placeholder { color: var(--text3); }
+#search-count { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+/* ════════════════════════════════════
+   DESKTOP TABLE VIEW
+════════════════════════════════════ */
+.table-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  background: var(--surface3);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 11px 10px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+thead th:first-child { width: 42px; text-align: center; }
+thead th:last-child  { width: 130px; text-align: center; }
+
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr.hidden { display: none; }
+tbody tr.saving { background: rgba(26,86,219,0.04); }
+
+td { padding: 4px 6px; vertical-align: middle; }
+td:first-child {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+}
+td.action-cell { text-align: center; padding: 4px 8px; }
+
+.cell-input {
+  background: none;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 8px;
+  width: 100%;
+  outline: none;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.cell-input:focus {
+  background: var(--surface2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+.cell-input.map-input { color: var(--accent); font-size: 12px; }
+.cell-input.map-input::placeholder { color: var(--text3); }
+
+.map-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--accent-light);
+  border: 1.5px solid var(--border2);
+  color: var(--accent);
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+.map-open-btn:hover { background: rgba(26,86,219,0.18); }
+
+.btn-save {
+  background: var(--green-bg);
+  border: 1.5px solid rgba(10,122,74,.3);
+  color: var(--green);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: background .15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  margin-right: 4px;
+}
+.btn-save:hover    { background: rgba(10,122,74,0.20); }
+.btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-del {
+  background: var(--red-bg);
+  border: 1.5px solid rgba(192,57,43,.25);
+  color: var(--red);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: background .15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-del:hover { background: rgba(192,57,43,0.20); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 52px 20px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 12px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.empty-icon { font-size: 34px; }
+
+/* ════════════════════════════════════
+   MOBILE CARD LAYOUT  (≤768px)
+════════════════════════════════════ */
+#mobile-cards { display: none; }
+
+.atm-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--r);
+  padding: 14px 14px 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.atm-card.hidden { display: none; }
+.atm-card.saving { opacity: 0.7; }
+
+.atm-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.atm-card-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.atm-card-field { margin-bottom: 10px; }
+.atm-card-field:last-of-type { margin-bottom: 0; }
+
+.atm-card-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+
+.card-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px; /* prevents iOS zoom */
+  padding: 11px 12px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  -webkit-appearance: none;
+}
+.card-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: #fff;
+}
+.card-input.map-input { color: var(--accent); }
+.card-input.map-input::placeholder { color: var(--text3); }
+
+.card-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  background: var(--accent-light);
+  border: 1.5px solid var(--border2);
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+.card-map-link:hover { background: rgba(26,86,219,0.18); }
+
+.card-row-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.card-save-btn {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--sans);
+  padding: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s, transform .1s;
+}
+.card-save-btn:hover   { background: var(--accent2); }
+.card-save-btn:active  { transform: scale(0.98); }
+.card-save-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.card-del-btn {
+  background: var(--red-bg);
+  border: 1.5px solid rgba(192,57,43,.3);
+  color: var(--red);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--sans);
+  padding: 12px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.card-del-btn:hover { background: rgba(192,57,43,0.18); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--surface); border: 2px solid var(--green); color: var(--green); box-shadow: var(--shadow-md); }
+.toast.error   { background: var(--surface); border: 2px solid var(--red);   color: var(--red);   box-shadow: var(--shadow-md); }
+
+/* ── SPINNER ── */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(240,242,247,.80);
+  z-index: 800;
+  align-items: center;
+  justify-content: center;
+}
+#loading-overlay.show { display: flex; }
+.spinner {
+  width: 38px; height: 38px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CONFIRM DIALOG ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.40);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay.show { display: flex; }
+.confirm-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  padding: 28px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+}
+.confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.confirm-sub   { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+.confirm-btns  { display: flex; gap: 10px; }
+.btn-cancel {
+  flex: 1;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text2);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-confirm-del {
+  flex: 1;
+  background: var(--red-bg);
+  border: 1.5px solid rgba(192,57,43,.35);
+  color: var(--red);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-confirm-del:hover { background: rgba(192,57,43,0.18); }
+
+/* ════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Switch from table to card layout */
+  .table-card   { display: none; }
+  #mobile-cards { display: block; }
+
+  .main { padding: 10px 10px 32px; }
+
+  /* Single-column add form */
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .full { grid-column: 1; }
+
+  .stat-num { font-size: 18px; }
+  .topbar-title { font-size: 13px; }
+}
+
+@media (max-width: 420px) {
+  .login-card    { padding: 28px 16px 24px; }
+  .topbar-badge  { display: none; }
+  .topbar        { padding: 10px 12px; }
+  .stats-bar .stat-label { font-size: 8px; letter-spacing: .5px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-stripe"></div>
+    <div class="login-logo">
+      <div class="login-logo-icon">🏧</div>
+      <div>
+        <div class="login-logo-name">ATM Audit</div>
+        <div class="login-logo-sub">Secure System</div>
+      </div>
+    </div>
+    <div class="login-title">Sign In</div>
+    <div class="login-sub">Enter credentials to access the audit dashboard.</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="uname" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="pword" placeholder="Enter password" autocomplete="off">
+    </div>
+    <div id="login-error">⚠ Incorrect username or password.</div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-footer">Private system · No signup available</div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app-screen">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-icon">🏧</span>
+      <span class="topbar-title">ATM Audit</span>
+      <span class="topbar-badge" id="atm-count-badge">0 ATMs</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-filled" style="color:var(--green)">0</div>
+      <div class="stat-label">Filled</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-empty" style="color:var(--amber)">0</div>
+      <div class="stat-label">Empty</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-maps" style="color:var(--accent)">0</div>
+      <div class="stat-label">Maps</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Add Form -->
+    <div class="add-card">
+      <div class="section-label">➕ Insert New ATM</div>
+      <div class="form-grid">
+        <input class="form-input" id="f-terminal" type="text" placeholder="Terminal Number"        autocomplete="off">
+        <input class="form-input" id="f-area"     type="text" placeholder="Area"                   autocomplete="off">
+        <input class="form-input full" id="f-address" type="text" placeholder="Full Address"       autocomplete="off">
+        <input class="form-input full" id="f-maps"    type="url"  placeholder="Google Maps Link (https://...)" autocomplete="off" inputmode="url">
+      </div>
+      <button class="btn-add" id="btn-add-atm" onclick="addATM()">
+        <span style="font-size:16px;line-height:1">+</span> INSERT / ADD ATM
+      </button>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="filters-container">
+      <div class="filter-group">
+        <label>Area</label>
+        <select id="filter-area" onchange="filterAll()">
+          <option value="">All Areas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select id="filter-status" onchange="filterAll()">
+          <option value="">All ATMs</option>
+          <option value="1">Audited</option>
+          <option value="0">Pending</option>
+        </select>
+      </div>
+      <div class="search-card" style="margin-bottom:0; flex:1;">
+        <i class="search-icon">🔍</i>
+        <input id="search-input" type="search" placeholder="Search by Terminal, Address, or Area…" autocomplete="off">
+        <span id="search-count"></span>
+      </div>
+    </div>
+
+    <!-- ── DESKTOP TABLE ── -->
+    <div class="table-card">
+      <div class="table-scroll">
+        <table id="atm-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Audit</th>
+              <th>Terminal No</th>
+              <th>Address</th>
+              <th>Area</th>
+              <th>Maps Link</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state-desktop">
+          <span class="empty-icon">🏧</span>
+          <span>No ATMs found. Add one above.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOBILE CARDS ── -->
+    <div id="mobile-cards">
+      <!-- Cards are injected here by JS -->
+      <div class="empty-state" id="empty-state-mobile">
+        <span class="empty-icon">🏧</span>
+        <span>No ATMs found. Add one above.</span>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Delete Confirm -->
+<div class="overlay" id="confirm-overlay">
+  <div class="confirm-card">
+    <div class="confirm-title">Delete this ATM?</div>
+    <div class="confirm-sub" id="confirm-msg">This cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loading-overlay"><div class="spinner"></div></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════
+
+const API = {
+  checkAuth: 'api/check_auth.php',
+  login:  'api/login.php',
+  logout: 'api/logout.php',
+  get:    'api/get_atms.php',
+  add:    'api/add_atm.php',
+  update: 'api/update_atm.php',
+  del:    'api/delete_atm.php',
+  toggle: 'api/toggle_audit.php',
+};
+
+// ════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════
+function showLoading(v) { document.getElementById('loading-overlay').classList.toggle('show', v); }
+
+let toastTimer;
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+// ── CORE: API fetch with POST JSON ──
+async function apiFetch(url, body) {
+  const res  = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+  if (res.status === 401) {
+    doLogout(false); // Unauthorized, force logout without API call
+    throw new Error(json.message || 'Unauthorized');
+  }
+  if (!json.success) throw new Error(json.message || 'API error');
+  return json;
+}
+
+// ════════════════════════════════════
+// AUTH
+// ════════════════════════════════════
+async function doLogin() {
+  const u = document.getElementById('uname').value.trim();
+  const p = document.getElementById('pword').value;
+  document.getElementById('login-error').style.display = 'none';
+  
+  if (!u || !p) return;
+  
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Signing In...';
+
+  try {
+    await apiFetch(API.login, { username: u, password: p });
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display  = 'flex';
+    initApp();
+  } catch (e) {
+    document.getElementById('login-error').textContent = '⚠ ' + e.message;
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pword').value = '';
+    document.getElementById('pword').focus();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In →';
+  }
+}
+
+async function doLogout(callApi = true) {
+  if (callApi) {
+    try { await fetch(API.logout); } catch (e) {}
+  }
+  document.getElementById('app-screen').style.display  = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('uname').value = '';
+  document.getElementById('pword').value = '';
+}
+
+document.getElementById('pword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('uname').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pword').focus(); });
+
+async function checkAuth() {
+  try {
+    const res = await fetch(API.checkAuth);
+    const json = await res.json();
+    if (json.authenticated) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display  = 'flex';
+      initApp();
+    }
+  } catch(e) {
+    console.error('Auth check failed', e);
+  }
+}
+checkAuth();
+
+// ════════════════════════════════════
+// APP INIT
+// ════════════════════════════════════
+async function initApp() {
+  showLoading(true);
+  try {
+    const res  = await fetch(API.get);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message);
+    renderAll(json.data);
+  } catch(e) {
+    toast('Could not load ATMs: ' + e.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+  document.getElementById('search-input').addEventListener('input', filterAll);
+}
+
+// ════════════════════════════════════
+// RENDER BOTH VIEWS
+// ════════════════════════════════════
+function renderAll(data) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+
+  // Clear only existing cards (not the empty-state div)
+  document.querySelectorAll('#mobile-cards .atm-card').forEach(c => c.remove());
+
+  data.forEach((row, i) => {
+    tbody.appendChild(buildRow(row, i + 1));
+    insertCard(buildCard(row, i + 1));
+  });
+
+  // Update areas
+  const areas = new Set();
+  data.forEach(r => { if(r.area) areas.add(r.area) });
+  const areaSelect = document.getElementById('filter-area');
+  const currArea = areaSelect.value;
+  areaSelect.innerHTML = '<option value="">All Areas</option>';
+  Array.from(areas).sort().forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = a;
+    areaSelect.appendChild(opt);
+  });
+  areaSelect.value = currArea;
+
+  updateStats(data);
+  updateBadge(data.length);
+  updateEmptyState();
+}
+
+function insertCard(card) {
+  const container = document.getElementById('mobile-cards');
+  const emptyDiv  = document.getElementById('empty-state-mobile');
+  container.insertBefore(card, emptyDiv);
+}
+
+// ════════════════════════════════════
+// DESKTOP TABLE ROW  (edit → save btn → API)
+// ════════════════════════════════════
+function buildRow(row, srNo) {
+  const tr = document.createElement('tr');
+  tr.dataset.id = row.id;
+  const mapVal = row.maps || '';
+  const isAudited = row.audit_status == 1;
+  const checkedAttr = isAudited ? 'checked' : '';
+  const dateStr = (isAudited && row.last_audit_date) ? `<div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-top:4px;">${row.last_audit_date}</div>` : '';
+
+  tr.innerHTML = `
+    <td>${srNo}</td>
+    <td style="text-align:center;">
+      <input type="checkbox" class="audit-cb" ${checkedAttr} onchange="toggleAudit('${row.id}', this)" data-audit="${row.audit_status || 0}">
+      ${dateStr}
+    </td>
+    <td><input class="cell-input" data-field="terminal" value="${esc(row.terminal)}" placeholder="Terminal #" type="text"></td>
+    <td><input class="cell-input" data-field="address"  value="${esc(row.address)}"  placeholder="Address"    type="text"></td>
+    <td><input class="cell-input" data-field="area"     value="${esc(row.area)}"     placeholder="Area"       type="text"></td>
+    <td>
+      <input class="cell-input map-input" data-field="maps" value="${esc(mapVal)}" placeholder="Paste link…" type="text">
+      ${mapVal.trim() ? `<a class="map-open-btn" href="${esc(mapVal)}" target="_blank" rel="noopener">↗ Open</a>` : ''}
+    </td>
+    <td class="action-cell">
+      <button class="btn-save" onclick="saveRowBtn(this)">💾 Save</button>
+      <button class="btn-del"  onclick="requestDelete('${row.id}','${esc(row.terminal||'ATM')}')">Del</button>
+    </td>
+  `;
+
+  // Live map-button update & sync card on typing
+  tr.querySelector('[data-field="maps"]').addEventListener('input', function() {
+    updateMapBtnInRow(tr, this.value);
+  });
+
+  return tr;
+}
+
+// Explicit save button handler for desktop row
+async function saveRowBtn(btn) {
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '⏳';
+  tr.classList.add('saving');
+
+  try {
+    await apiFetch(API.update, {
+      id,
+      terminal: tr.querySelector('[data-field="terminal"]').value,
+      address:  tr.querySelector('[data-field="address"]').value,
+      area:     tr.querySelector('[data-field="area"]').value,
+      maps:     tr.querySelector('[data-field="maps"]').value,
+    });
+    toast('Row saved ✓');
+    recomputeStats();
+    syncCardFromRow(tr);  // keep mobile card in sync
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+    tr.classList.remove('saving');
+  }
+}
+
+function updateMapBtnInRow(tr, url) {
+  const cell = tr.querySelector('td:nth-child(5)');
+  let btn = cell.querySelector('.map-open-btn');
+  if (url.trim()) {
+    if (!btn) {
+      btn = document.createElement('a');
+      btn.className = 'map-open-btn';
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.textContent = '↗ Open';
+      cell.appendChild(btn);
+    }
+    btn.href = url;
+  } else {
+    if (btn) btn.remove();
+  }
+}
+
+// ════════════════════════════════════
+// MOBILE CARD  (edit → save btn → API)
+// ════════════════════════════════════
+function buildCard(row, srNo) {
+  const card = document.createElement('div');
+  card.className = 'atm-card';
+  card.dataset.id = row.id;
+  const mapVal = row.maps || '';
+  const isAudited = row.audit_status == 1;
+  const checkedAttr = isAudited ? 'checked' : '';
+  const dateStr = (isAudited && row.last_audit_date) ? ` <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">(${row.last_audit_date})</span>` : '';
+
+  card.innerHTML = `
+    <div class="atm-card-header">
+      <span class="atm-card-num"># ${srNo}</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text);font-family:var(--mono);">
+        Audit: 
+        <input type="checkbox" class="audit-cb" ${checkedAttr} onchange="toggleAudit('${row.id}', this)" data-audit="${row.audit_status || 0}">
+        ${dateStr}
+      </label>
+    </div>
+    <div class="atm-card-field">
+      <span class="atm-card-label">Terminal No</span>
+      <input class="card-input" data-field="terminal" value="${esc(row.terminal)}" placeholder="Terminal Number" type="text">
+    </div>
+    <div class="atm-card-field">
+      <span class="atm-card-label">Area</span>
+      <input class="card-input" data-field="area" value="${esc(row.area)}" placeholder="Area" type="text">
+    </div>
+    <div class="atm-card-field">
+      <span class="atm-card-label">Address</span>
+      <input class="card-input" data-field="address" value="${esc(row.address)}" placeholder="Full Address" type="text">
+    </div>
+    <div class="atm-card-field" id="maps-field-${row.id}">
+      <span class="atm-card-label">Maps Link</span>
+      <input class="card-input map-input" data-field="maps" value="${esc(mapVal)}" placeholder="Paste Google Maps link…" type="url" inputmode="url">
+      ${mapVal.trim() ? `<a class="card-map-link" href="${esc(mapVal)}" target="_blank" rel="noopener">↗ Open in Maps</a>` : ''}
+    </div>
+    <div class="card-row-actions">
+      <button class="card-save-btn" onclick="saveCardBtn(this)">💾 Save Changes</button>
+      <button class="card-del-btn"  onclick="requestDelete('${row.id}','${esc(row.terminal||'ATM')}')">🗑</button>
+    </div>
+  `;
+
+  // Live maps link update
+  card.querySelector('[data-field="maps"]').addEventListener('input', function() {
+    updateMapLinkInCard(card, this.value);
+  });
+
+  return card;
+}
+
+// Explicit save button handler for mobile card
+async function saveCardBtn(btn) {
+  const card = btn.closest('.atm-card');
+  const id   = card.dataset.id;
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving…';
+  card.classList.add('saving');
+
+  try {
+    await apiFetch(API.update, {
+      id,
+      terminal: card.querySelector('[data-field="terminal"]').value,
+      address:  card.querySelector('[data-field="address"]').value,
+      area:     card.querySelector('[data-field="area"]').value,
+      maps:     card.querySelector('[data-field="maps"]').value,
+    });
+    toast('Saved successfully ✓');
+    recomputeStats();
+    syncRowFromCard(card);  // keep desktop row in sync
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Save Changes';
+    card.classList.remove('saving');
+  }
+}
+
+function updateMapLinkInCard(card, url) {
+  const mapsField = card.querySelector('[data-field="maps"]').parentElement;
+  let link = mapsField.querySelector('.card-map-link');
+  if (url.trim()) {
+    if (!link) {
+      link = document.createElement('a');
+      link.className = 'card-map-link';
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = '↗ Open in Maps';
+      mapsField.appendChild(link);
+    }
+    link.href = url;
+  } else {
+    if (link) link.remove();
+  }
+}
+
+// Keep desktop row fields in sync after card save
+function syncRowFromCard(card) {
+  const id = card.dataset.id;
+  const tr = document.querySelector(`#table-body tr[data-id="${id}"]`);
+  if (!tr) return;
+  ['terminal','address','area','maps'].forEach(f => {
+    const v = card.querySelector(`[data-field="${f}"]`).value;
+    const inp = tr.querySelector(`[data-field="${f}"]`);
+    if (inp) { inp.value = v; }
+  });
+}
+
+// Keep mobile card fields in sync after row save
+function syncCardFromRow(tr) {
+  const id   = tr.dataset.id;
+  const card = document.querySelector(`#mobile-cards .atm-card[data-id="${id}"]`);
+  if (!card) return;
+  ['terminal','address','area','maps'].forEach(f => {
+    const v = tr.querySelector(`[data-field="${f}"]`).value;
+    const inp = card.querySelector(`[data-field="${f}"]`);
+    if (inp) { inp.value = v; }
+  });
+}
+
+// ════════════════════════════════════
+// AUDIT TOGGLE
+// ════════════════════════════════════
+async function toggleAudit(id, cb) {
+  const isChecked = cb.checked;
+  const newStatus = isChecked ? 1 : 0;
+  try {
+    cb.disabled = true;
+    const res = await apiFetch(API.toggle, { id, audit_status: newStatus });
+    
+    // update data in UI
+    const tr = document.querySelector(`#table-body tr[data-id="${id}"]`);
+    const card = document.querySelector(`#mobile-cards .atm-card[data-id="${id}"]`);
+    
+    // We can replace the row directly or just update visually.
+    // It's safer to re-render the row & card to correctly rebuild the markup.
+    // Let's just reload the list for simplicity and exactness, or update cb directly.
+    if (tr) {
+      const tdAttr = tr.querySelector('.audit-cb');
+      if (tdAttr) {
+        tdAttr.checked = isChecked;
+        tdAttr.dataset.audit = newStatus;
+        // update date text
+        const cell = tdAttr.parentElement;
+        const div = cell.querySelector('div');
+        if (isChecked && res.data.last_audit_date) {
+            if (div) div.textContent = res.data.last_audit_date;
+            else cell.insertAdjacentHTML('beforeend', `<div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-top:4px;">${res.data.last_audit_date}</div>`);
+        } else {
+            if (div) div.remove();
+        }
+      }
+    }
+    
+    if (card) {
+      const cbCard = card.querySelector('.audit-cb');
+      if (cbCard) {
+        cbCard.checked = isChecked;
+        cbCard.dataset.audit = newStatus;
+        const labelsSpan = cbCard.parentElement.querySelector('span');
+        if (isChecked && res.data.last_audit_date) {
+            if (labelsSpan) labelsSpan.textContent = `(${res.data.last_audit_date})`;
+            else cbCard.insertAdjacentHTML('afterend', ` <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">(${res.data.last_audit_date})</span>`);
+        } else {
+            if (labelsSpan) labelsSpan.remove();
+        }
+      }
+    }
+
+    recomputeStats();
+    toast(isChecked ? 'Marked as Audited ✓' : 'Marked as Pending', isChecked ? 'success' : 'error');
+  } catch(e) {
+    cb.checked = !isChecked; // revert
+    toast('Failed: ' + e.message, 'error');
+  } finally {
+    cb.disabled = false;
+  }
+}
+
+// ════════════════════════════════════
+// ADD ATM  (unchanged logic, dual-render)
+// ════════════════════════════════════
+async function addATM() {
+  const terminal = document.getElementById('f-terminal').value.trim();
+  const address  = document.getElementById('f-address').value.trim();
+  const area     = document.getElementById('f-area').value.trim();
+  const maps     = document.getElementById('f-maps').value.trim();
+
+  if (!terminal && !address && !area) {
+    highlight('f-terminal');
+    return;
+  }
+
+  const btn = document.getElementById('btn-add-atm');
+  btn.disabled = true;
+  btn.textContent = 'Adding…';
+
+  try {
+    const res   = await apiFetch(API.add, { terminal, address, area, maps });
+    const tbody = document.getElementById('table-body');
+    const srNo  = tbody.querySelectorAll('tr').length + 1;
+
+    tbody.appendChild(buildRow(res.data, srNo));
+    insertCard(buildCard(res.data, srNo));
+
+    // Clear search & restore all rows
+    document.getElementById('search-input').value = '';
+    document.querySelectorAll('#table-body tr, #mobile-cards .atm-card').forEach(el => el.classList.remove('hidden'));
+    document.getElementById('search-count').textContent = '';
+
+    // Clear form
+    ['f-terminal','f-address','f-area','f-maps'].forEach(id => document.getElementById(id).value = '');
+
+    recomputeStats();
+    updateBadge(tbody.querySelectorAll('tr').length);
+    updateEmptyState();
+    toast('ATM added successfully');
+  } catch(e) {
+    toast('Add failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span style="font-size:16px;line-height:1">+</span> INSERT / ADD ATM';
+  }
+}
+
+function highlight(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = 'var(--red)';
+  el.style.boxShadow   = '0 0 0 3px rgba(192,57,43,.15)';
+  el.focus();
+  setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1600);
+}
+
+// ════════════════════════════════════
+// DELETE ATM  (unchanged logic, dual-remove)
+// ════════════════════════════════════
+let deleteTargetId = null;
+
+function requestDelete(id, label) {
+  deleteTargetId = id;
+  document.getElementById('confirm-msg').textContent = `Delete ATM "${label}"? This cannot be undone.`;
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('show');
+  deleteTargetId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  const id = deleteTargetId;
+  closeConfirm();
+  showLoading(true);
+  try {
+    await apiFetch(API.del, { id });
+    document.querySelector(`#table-body tr[data-id="${id}"]`)?.remove();
+    document.querySelector(`#mobile-cards .atm-card[data-id="${id}"]`)?.remove();
+    renumberAll();
+    recomputeStats();
+    updateBadge(document.querySelectorAll('#table-body tr').length);
+    updateEmptyState();
+    toast('ATM deleted');
+  } catch(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+// ════════════════════════════════════
+// SEARCH / FILTER  (unchanged logic, works on both views)
+// ════════════════════════════════════
+function filterAll() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const areaFilter = document.getElementById('filter-area').value.toLowerCase();
+  const statusFilter = document.getElementById('filter-status').value;
+
+  const rows  = document.querySelectorAll('#table-body tr');
+  const cards = document.querySelectorAll('#mobile-cards .atm-card');
+  let visible = 0;
+
+  rows.forEach((tr, i) => {
+    const t  = (tr.querySelector('[data-field="terminal"]')?.value || '').toLowerCase();
+    const a  = (tr.querySelector('[data-field="address"]')?.value  || '').toLowerCase();
+    const ar = (tr.querySelector('[data-field="area"]')?.value     || '').toLowerCase();
+    
+    let auditStatus = "0";
+    const auditCb = tr.querySelector('.audit-cb');
+    if (auditCb) auditStatus = auditCb.dataset.audit || (auditCb.checked ? "1" : "0");
+
+    let show = !q || t.includes(q) || a.includes(q) || ar.includes(q);
+    if (show && areaFilter && ar !== areaFilter) show = false;
+    if (show && statusFilter !== '' && auditStatus !== statusFilter) show = false;
+
+    tr.classList.toggle('hidden', !show);
+    if (cards[i]) cards[i].classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  document.getElementById('search-count').textContent = q || areaFilter || statusFilter ? `${visible}/${rows.length}` : '';
+  updateEmptyState();
+}
+
+// ════════════════════════════════════
+// STATS / NUMBERING
+// ════════════════════════════════════
+function renumberAll() {
+  document.querySelectorAll('#table-body tr').forEach((tr, i) => {
+    tr.firstElementChild.textContent = i + 1;
+  });
+  document.querySelectorAll('#mobile-cards .atm-card').forEach((card, i) => {
+    const num = card.querySelector('.atm-card-num');
+    if (num) num.textContent = '# ' + (i + 1);
+  });
+}
+
+function recomputeStats() {
+  const rows = document.querySelectorAll('#table-body tr');
+  let filled = 0, maps = 0, audited = 0;
+  rows.forEach(tr => {
+    const t = tr.querySelector('[data-field="terminal"]')?.value || '';
+    const a = tr.querySelector('[data-field="address"]')?.value  || '';
+    const m = tr.querySelector('[data-field="maps"]')?.value     || '';
+    const auditCb = tr.querySelector('.audit-cb');
+    if (t || a) filled++;
+    if (m.trim()) maps++;
+    if (auditCb && (auditCb.dataset.audit === "1" || auditCb.checked)) audited++;
+  });
+  const total = rows.length;
+  document.getElementById('stat-total').textContent  = total;
+  document.getElementById('stat-filled').textContent = audited + " / " + total;
+  document.getElementById('stat-empty').textContent  = total - audited;
+  document.getElementById('stat-maps').textContent   = maps;
+
+  // Let's update the labels to fit audit context
+  const filledLabel = document.querySelector('.stat-cell:nth-child(2) .stat-label');
+  if (filledLabel) filledLabel.textContent = 'Audited';
+  const emptyLabel = document.querySelector('.stat-cell:nth-child(3) .stat-label');
+  if (emptyLabel) emptyLabel.textContent = 'Pending';
+}
+
+function updateStats(data) {
+  const total  = data.length;
+  const audited = data.filter(r => parseInt(r.audit_status) === 1).length;
+  const maps   = data.filter(r => r.maps && r.maps.trim()).length;
+  document.getElementById('stat-total').textContent  = total;
+  document.getElementById('stat-filled').textContent = audited + " / " + total;
+  document.getElementById('stat-empty').textContent  = total - audited;
+  document.getElementById('stat-maps').textContent   = maps;
+
+  const filledLabel = document.querySelector('.stat-cell:nth-child(2) .stat-label');
+  if (filledLabel) filledLabel.textContent = 'Audited';
+  const emptyLabel = document.querySelector('.stat-cell:nth-child(3) .stat-label');
+  if (emptyLabel) emptyLabel.textContent = 'Pending';
+}
+
+function updateBadge(count) {
+  document.getElementById('atm-count-badge').textContent = count + ' ATMs';
+}
+
+function updateEmptyState() {
+  const rows = document.querySelectorAll('#table-body tr');
+  const anyVisible = rows.length > 0 && Array.from(rows).some(r => !r.classList.contains('hidden'));
+  const isEmpty = !rows.length || !anyVisible;
+
+  document.getElementById('empty-state-desktop').style.display = isEmpty ? 'flex' : 'none';
+  document.getElementById('empty-state-mobile').style.display  = isEmpty ? 'flex' : 'none';
+}
+</script>
+</body>
+</html>
