@@ -1,6 +1,5 @@
 -- ============================================
--- ATM Audit Management System - Database Setup
--- Run this in phpMyAdmin or MySQL CLI
+-- ATM Audit Management System - Clean Setup
 -- ============================================
 
 CREATE DATABASE IF NOT EXISTS atm_audit
@@ -9,10 +8,11 @@ CREATE DATABASE IF NOT EXISTS atm_audit
 
 USE atm_audit;
 
+-- 1. ATMs Table (Local storage audit tracking ke liye)
 CREATE TABLE IF NOT EXISTS atms (
   id              INT           NOT NULL AUTO_INCREMENT,
   terminal        VARCHAR(100)  NOT NULL DEFAULT '',
-  address         TEXT          NOT NULL,
+  address          TEXT          NOT NULL,
   area            VARCHAR(150)  NOT NULL DEFAULT '',
   maps            TEXT          NOT NULL DEFAULT '',
   audit_status    TINYINT(1)    NOT NULL DEFAULT 0,
@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS atms (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 2. Users Table
 CREATE TABLE IF NOT EXISTS users (
   id INT NOT NULL AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -29,13 +30,13 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Placeholder user (username: demo_user, password: your_password_here)
--- The password hash uses bcrypt (generate using password_hash() in PHP)
+-- 3. Simple Login Insert (No Hash)
+-- Username: admin | Password: 123
 INSERT INTO users (username, password) VALUES 
-('demo_user', '$2y$10$wO3Pudq1iT2oR1k2AOHX2.nQYl2Wlk7OOf2Zl8Z14hF/t9oH2e5y.');
+('admin', '123');
 
--- Optional: seed a few sample rows to test
+-- 4. Sample ATM Data (Vyara, Songadh, Bardoli areas)
 INSERT INTO atms (terminal, address, area, maps, audit_status, last_audit_date) VALUES
-  ('ATM-001', 'Branch Road, Near Post Office', 'Vyara',   'https://maps.google.com/?q=Vyara', 0, NULL),
-  ('ATM-002', 'Main Bazaar, Opp. SBI',         'Songadh', 'https://maps.google.com/?q=Songadh', 0, NULL),
+  ('ATM-001', 'Branch Road, Near Post Office', 'Vyara',   'https://www.google.com/maps?q=Vyara', 0, NULL),
+  ('ATM-002', 'Main Bazaar, Opp. SBI',         'Songadh', 'https://www.google.com/maps?q=Songadh', 0, NULL),
   ('ATM-003', 'Station Road, Platform Gate',   'Bardoli', '', 0, NULL);
