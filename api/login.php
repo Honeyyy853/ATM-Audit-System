@@ -1,10 +1,13 @@
 <?php
 // ============================================
-// api/login.php
-// Validates credentials and sets PHP session
-// Expects POST body: JSON { username, password }
+// api/login.php - Plain Text Version
 // ============================================
 require_once __DIR__ . '/connection.php';
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -26,7 +29,8 @@ try {
     $stmt->execute([':username' => $body['username']]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($body['password'], $user['password'])) {
+    // HASH NIKAL DIYA: Ab ye direct password match karega
+    if ($user && $body['password'] == $user['password']) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         echo json_encode(['success' => true, 'message' => 'Login successful']);
